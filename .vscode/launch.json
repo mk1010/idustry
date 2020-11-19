@@ -10,7 +10,9 @@
             "request": "launch",
             "mode": "auto",
             "program": "${fileDirname}",
-            "env": {},
+            "env": {
+                //"PRODUCT_ENV":"prod"
+            },
             "args": [
                 "-confdir", "/mnt/d/code/industry/industry_identification_center/conf",
             ]

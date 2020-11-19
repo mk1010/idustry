@@ -13,15 +13,18 @@ var (
 )
 
 func main() {
-	initGin()
-
 	if err := initConfig(); err != nil {
 		panic(fmt.Sprintf("initconfig error:%v", err))
 	}
 
+	initGin()
+
 }
 
 func initGin() {
+	if config.ConfInstance.Env == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	e = gin.Default()
 }
 
@@ -36,6 +39,6 @@ func initConfig() error {
 	if curEnv != config.ConfInstance.Env {
 		return errors.New("env error")
 	}
-	fmt.Sprintln(fmt.Sprintf("Service running in %s mode", curEnv))
+	fmt.Printf("Service running in %s mode\n", curEnv)
 	return nil
 }
