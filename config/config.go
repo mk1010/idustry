@@ -37,6 +37,10 @@ var (
 	DBSettings   *simplejson.Json
 )
 
+func isProduct() bool {
+	return ConfInstance.Env == "prod"
+}
+
 func NewConfig(file string) (*Config, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
