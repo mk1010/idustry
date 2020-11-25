@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"industry_identification_center/config"
+	"industry_identification_center/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,11 +15,13 @@ var (
 
 func main() {
 	if err := initConfig(); err != nil {
-		panic(fmt.Sprintf("initconfig error:%v", err))
+		panic(fmt.Sprintf("init config error:%v", err))
 	}
 
 	initGin()
-
+	if err := initModel(); err != nil {
+		panic(fmt.Sprintf("init model error:%v", err))
+	}
 }
 
 func initGin() {
@@ -41,4 +44,8 @@ func initConfig() error {
 	}
 	fmt.Printf("Service running in %s mode\n", curEnv)
 	return nil
+}
+
+func initModel() error {
+	return model.Init()
 }

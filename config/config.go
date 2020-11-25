@@ -25,7 +25,7 @@ type DBConfig struct {
 }
 
 type DBConnectInfo struct {
-	AuthKey         string `json:"auth_key"` //拓展使用，一般作为动态密钥
+	AuthKey         string `json:"auth_key"` //gorm支持的另外一种认证方式
 	Consul          string `json:"consul"`
 	UserName        string `json:"username"`
 	Password        string `json:"password"`

@@ -15,6 +15,9 @@ func Init() error {
 	if err := redisclient.InitRedisClient(); err != nil {
 		return err
 	}
+	if err := initDBClient(); err != nil {
+		return err
+	}
 
 	return nil
 }
