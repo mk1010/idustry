@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"fmt"
 	"industry_identification_center/model/redisclient"
 )
@@ -26,7 +25,7 @@ func initDBClient() error {
 	for _, db := range dbs {
 		ok := db.Init()
 		if !ok {
-			return errors.New(fmt.Sprintf("初始化数据库失败:db_key=%v", db.key))
+			return fmt.Errorf("初始化数据库失败:db_key=%v", db.key)
 		}
 	}
 	return nil

@@ -2,7 +2,7 @@
     "dbs":{
         "industry_identification_center":{
             "database":"device_info",
-            "settings":"charset=utfmbp4&parseTime=True&loc=Local&timeout=2s&readTimeout=30s&writeTimeout=3s",
+            "settings":"charset=utf8mb4&parseTime=True&loc=Local&timeout=2s&readTimeout=30s&writeTimeout=3s",
             "write":{
                 "consul":"industry_identification_center.mysql.hust_cs_344_write",
                 "username":"hust_cs_344_w",
