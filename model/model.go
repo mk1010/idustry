@@ -17,7 +17,6 @@ func Init() error {
 	if err := initDBClient(); err != nil {
 		return err
 	}
-
 	return nil
 }
 
