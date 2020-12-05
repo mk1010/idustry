@@ -3,9 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"industry_identification_center/common/constant"
 	"industry_identification_center/config"
+	"industry_identification_center/handler"
 	"industry_identification_center/model"
 
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +25,7 @@ func main() {
 	if err := initModel(); err != nil {
 		panic(fmt.Sprintf("init model error:%v", err))
 	}
+	initHandler()
 }
 
 func initGin() {
@@ -29,6 +33,9 @@ func initGin() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	e = gin.Default()
+	router := gin.Default()
+	pprof.Register(router)
+	go router.Run(constant.ListenDebugAddr)
 }
 
 func initConfig() error {
@@ -48,4 +55,8 @@ func initConfig() error {
 
 func initModel() error {
 	return model.Init()
+}
+
+func initHandler() {
+	handler.Init(e)
 }

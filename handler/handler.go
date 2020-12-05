@@ -16,6 +16,7 @@ var (
 func Init(e *gin.Engine) {
 	handlers = make([]Handler, 0)
 	handlers = append(handlers, &homePage{})
+	registerHandlers(e)
 }
 
 func registerHandlers(e *gin.Engine) {
