@@ -6,7 +6,7 @@ import (
 	"industry_identification_center/common/constant"
 	"industry_identification_center/config"
 	"industry_identification_center/handler"
-	"industry_identification_center/model"
+	model "industry_identification_center/modules"
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"

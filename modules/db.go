@@ -20,6 +20,20 @@ type DB struct {
 	db  *gorm.DB
 }
 
+func NewDB(s string) *DB {
+	return &DB{
+		key: s,
+	}
+}
+
+func (d *DB) WriteDB() *gorm.DB {
+	return d.db.Clauses(dbresolver.Write)
+}
+
+func (d *DB) ReadDB() *gorm.DB {
+	return d.db
+}
+
 func (d *DB) Init() bool {
 	option, ok := config.ConfInstance.DBConfigs[d.key]
 	if !ok {
