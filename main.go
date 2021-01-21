@@ -20,11 +20,10 @@ func main() {
 	if err := initConfig(); err != nil {
 		panic(fmt.Sprintf("init config error:%v", err))
 	}
-
-	initGin()
 	if err := initModel(); err != nil {
 		panic(fmt.Sprintf("init model error:%v", err))
 	}
+	initGin()
 	initHandler()
 }
 
@@ -40,8 +39,8 @@ func initGin() {
 
 func initConfig() error {
 	curEnv := config.CheckEnv()
-	config.FlagInit()
-	configFile := config.Input_ConfDir + "/" + fmt.Sprintf("industry_identification_center_%s.json", curEnv)
+	
+	configFile := config.GetConfigPath()
 
 	if err := config.Init(configFile); err != nil {
 		return err

@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -80,12 +80,8 @@ func CheckEnv() string {
 	return "dev"
 }
 
-var Input_ConfDir string
 
-func FlagInit() {
-	flag.StringVar(&Input_ConfDir, "confdir", "", "配置文件路径")
-	flag.Parse()
-	if Input_ConfDir == "" {
-		panic("flaginit error")
-	}
+func GetConfigPath()string{
+	return fmt.Sprintf("./conf/industry_identification_center_%s.json",CheckEnv())
 }
+//config.Input_ConfDir + "/" + fmt.Sprintf("industry_identification_center_%s.json", curEnv)
