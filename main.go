@@ -3,18 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
-	"industry_identification_center/common/constant"
-	"industry_identification_center/config"
-	"industry_identification_center/handler"
-	model "industry_identification_center/modules"
+
+	"github.com/mk1010/idustry/common/constant"
+	"github.com/mk1010/idustry/config"
+	"github.com/mk1010/idustry/handler"
+	model "github.com/mk1010/idustry/modules"
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	e *gin.Engine
-)
+var e *gin.Engine
 
 func main() {
 	if err := initConfig(); err != nil {
@@ -39,7 +38,7 @@ func initGin() {
 
 func initConfig() error {
 	curEnv := config.CheckEnv()
-	
+	// mk
 	configFile := config.GetConfigPath()
 
 	if err := config.Init(configFile); err != nil {
