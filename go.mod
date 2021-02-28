@@ -1,4 +1,4 @@
-module industry_identification_center
+module github.com/mk1010/idustry
 
 go 1.15
 
