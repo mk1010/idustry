@@ -1,13 +1,11 @@
 package model
 
 import (
-	IDCModel "industry_identification_center/modules/industry_identification_center/model"
-	"industry_identification_center/modules/redisclient"
+	IDCModel "github.com/mk1010/idustry/modules/industry_identification_center/model"
+	"github.com/mk1010/idustry/modules/redisclient"
 )
 
-var (
-	dbs = []*DB{&DB{key: "industry_identification_center"}}
-)
+var dbs = []*DB{&DB{key: "industry_identification_center"}}
 
 func Init() error {
 	if err := redisclient.InitRedisClient(); err != nil {

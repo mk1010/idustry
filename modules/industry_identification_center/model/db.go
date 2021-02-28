@@ -3,7 +3,8 @@ package model
 import (
 	"errors"
 	"fmt"
-	"industry_identification_center/config"
+
+	"github.com/mk1010/idustry/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -39,7 +40,7 @@ func (d *DB) Init() bool {
 	if !ok {
 		return false
 	}
-	//必须先开write
+	// 必须先开write
 	ok1 := d.dbInstance(option, dbTypeWrite)
 	ok2 := d.dbInstance(option, dbTypeRead)
 	return ok1 && ok2
@@ -52,7 +53,7 @@ func (d *DB) dbInstance(option config.DBConfig, dbType string) bool {
 			for _, readDB := range option.ReadDB {
 				connStr, err := d.gormConnect(readDB, &option)
 				if err != nil {
-					//log
+					// log
 					return false
 				}
 				connStrs = append(connStrs, connStr)
@@ -60,22 +61,22 @@ func (d *DB) dbInstance(option config.DBConfig, dbType string) bool {
 
 			_, err := d.openRead(connStrs)
 			if err != nil {
-				//log
+				// log
 				return false
 			}
 		} else {
-			//加载顺序错误，应该先加载写库
+			// 加载顺序错误，应该先加载写库
 			return false
 		}
 	} else if dbType == dbTypeWrite {
 		connStr, err := d.gormConnect(option.WriteDB, &option)
 		if err != nil {
-			//log
+			// log
 			return false
 		}
 		d.db, err = d.openWrite(connStr)
 		if err != nil {
-			//log
+			// log
 			return false
 		}
 	}
