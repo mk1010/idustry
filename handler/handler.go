@@ -9,12 +9,9 @@ type Handler interface {
 	Register(e *gin.Engine)
 }
 
-var (
-	handlers []Handler
-)
+var handlers []Handler
 
 func Init(e *gin.Engine) {
-	handlers = make([]Handler, 0)
 	handlers = append(handlers, &homePage{})
 	registerHandlers(e)
 }

@@ -24,6 +24,9 @@ func main() {
 	}
 	initGin()
 	initHandler()
+	if err := e.RunTLS(":8080", "./server.crt", "./server.key"); err != nil {
+		panic(fmt.Sprintf("gin running error:%v", err))
+	}
 }
 
 func initGin() {
