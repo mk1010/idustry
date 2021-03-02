@@ -4,17 +4,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
+	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mk1010/idustry/handler/sse"
 )
 
 type homePage struct{}
 
+var (
+	homePageSseHandler      *sse.SSEHandler
+	homePageSseInstanceOnce sync.Once
+)
+
+func HomePageSseInstance() *sse.SSEHandler {
+	homePageSseInstanceOnce.Do(func() {
+		homePageSseHandler = sse.NewSSEHandler()
+		homePageSseHandler.HandleEvents()
+	})
+	return homePageSseHandler
+}
+
 func (h *homePage) Register(e *gin.Engine) {
 	group := e.Group("/")
 	group.Use()
-	group.GET("/", Subscribe) // todo handler
+	group.GET("/device/:LogicID", Subscribe) // todo handler
 }
 
 func homePageWorker() gin.HandlerFunc {
@@ -48,76 +62,40 @@ func Subscribe(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("Streaming unsupported"))
 		return
 	}
+	logicID := c.Param("LogicID")
+	// Create a new channel, over which we can send this client messages.
+	messageChan := make(chan string)
+	// Add this client to the map of those that should receive updates
+	HomePageSseInstance().AppendClient(sse.SseClient{
+		LogicID:  string(logicID),
+		UserChan: messageChan,
+	})
+
+	notify := w.(http.CloseNotifier).CloseNotify()
+	go func() {
+		<-notify
+		// Remove this client from the map of attached clients
+		HomePageSseInstance().RemoveClient(sse.SseClient{
+			LogicID:  string(logicID),
+			UserChan: messageChan,
+		})
+	}()
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-
 	for {
-		time.Sleep(time.Second)
-		_, err := fmt.Fprintf(w, "data: Message: %v\n\n", time.Now())
-		if err != nil {
-			log.Println(err)
+		msg, open := <-messageChan
+		if !open {
+			// If our messageChan was closed, this means that
+			// the client has disconnected.
 			break
 		}
+
+		fmt.Fprintf(w, "data: Message: %s\n\n", msg)
 		// Flush the response. This is only possible if the repsonse
 		// supports streaming.
 		f.Flush()
 	}
-	log.Println("mk", c.Request.Proto)
 	c.AbortWithStatus(http.StatusOK)
-}
-
-var messageChan chan string
-
-func handleSSE() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Get handshake from client")
-
-		// prepare the header
-		w.Header().Set("Content-Type", "text/event-stream")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
-		// instantiate the channel
-		messageChan = make(chan string)
-
-		// close the channel after exit the function
-		defer func() {
-			close(messageChan)
-			messageChan = nil
-			log.Printf("client connection is closed")
-		}()
-
-		// prepare the flusher
-		flusher, _ := w.(http.Flusher)
-
-		// trap the request under loop forever
-		for {
-			select {
-
-			// message will received here and printed
-			case message := <-messageChan:
-				fmt.Fprintf(w, "%s\n", message)
-				flusher.Flush()
-
-			// connection is closed then defer will be executed
-			case <-r.Context().Done():
-				return
-
-			}
-		}
-	}
-}
-
-func sendMessage(message string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if messageChan != nil {
-			log.Printf("print message to client")
-
-			// send the message through the available channel
-			messageChan <- message
-		}
-	}
 }
