@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-
-	//"github.com/json-iterator/go"
-	"github.com/bitly/go-simplejson"
 )
 
 type Config struct {
@@ -21,21 +18,20 @@ type DBConfig struct {
 	Database string          `json:"database"`
 	Settings string          `json:"settings"`
 	WriteDB  DBConnectInfo   `json:"write"`
-	ReadDB   []DBConnectInfo `json:"read"` //attention
+	ReadDB   []DBConnectInfo `json:"read"` // attention
 }
 
 type DBConnectInfo struct {
-	AuthKey         string `json:"auth_key"` //gorm支持的另外一种认证方式
+	AuthKey         string `json:"auth_key"` // gorm支持的另外一种认证方式
 	Consul          string `json:"consul"`
 	UserName        string `json:"username"`
 	Password        string `json:"password"`
 	DefaultHostPort string `json:"default_host_port"`
 }
 
-var (
-	ConfInstance *Config
-	DBSettings   *simplejson.Json
-)
+var ConfInstance *Config
+
+// DBSettings   *simplejson.Json
 
 func isProduct() bool {
 	return ConfInstance.Env == "prod"
@@ -51,10 +47,10 @@ func NewConfig(file string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	DBSettings, err = simplejson.NewJson(content)
-	if err != nil {
-		return nil, err
-	}
+	// DBSettings, err = simplejson.NewJson(content)
+	// if err != nil {
+	// return nil, err
+	// }
 	return &conf, nil
 }
 
@@ -74,14 +70,14 @@ func Init(file string) error {
 }
 
 func CheckEnv() string {
-	if os.Getenv("PRODUCT_ENV") != "" {
+	if os.Getenv("prod") != "" {
 		return "prod"
 	}
 	return "dev"
 }
 
-
-func GetConfigPath()string{
-	return fmt.Sprintf("./conf/industry_identification_center_%s.json",CheckEnv())
+func GetConfigPath() string {
+	return fmt.Sprintf("./conf/industry_identification_center_%s.json", CheckEnv())
 }
-//config.Input_ConfDir + "/" + fmt.Sprintf("industry_identification_center_%s.json", curEnv)
+
+// config.Input_ConfDir + "/" + fmt.Sprintf("industry_identification_center_%s.json", curEnv)
