@@ -1,12 +1,20 @@
 package main
 
 import (
-	"encoding/json"
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
+	"net"
+	"net/http"
 	"os"
 	"testing"
+	"time"
 
+	json "github.com/json-iterator/go"
+	"golang.org/x/net/http2"
+
+	rmq "github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/mk1010/idustry/modules/industry_identification_center/model"
 )
 
@@ -26,12 +34,100 @@ func TestModule(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(len(fileByte), string(fileByte))
+	rmq.NewProducer(
+		producer.WithNameServer([]string{"127.0.0.1"}),
+		// producer.WithNsResolver(primitive.NewPassthroughResolver(endPoint)),
+		producer.WithRetry(2),
+		producer.WithGroupName("GID_xxxxxx"),
+	)
 }
 
 func TestJson(t *testing.T) {
 	s := model.Student{}
 	fmt.Println(json.Unmarshal([]byte(jsonString), &s))
-	q, _ := json.Marshal(&s)
-	v := string(q)
-	t.Log(v)
+	f, err := os.OpenFile(`C:\Users\mk\Desktop\毕业论文\开题报告PPT.pptx`, os.O_RDWR, 0666)
+	if err != nil {
+		t.Log(err)
+		return
+	}
+	bytesFile, _ := ioutil.ReadAll(f)
+	s.Name = string(bytesFile)
+	q, err := json.Marshal(&s)
+	if err != nil {
+		t.Log(err)
+		return
+	}
+	nf, err := os.OpenFile(`C:\Users\mk\Desktop\开题报告PPT.pptx`, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		t.Log(err)
+		return
+	}
+	t.Log(nf.Write(bytesFile))
+	t.Log(string(q))
+}
+
+func TestHttpClient(t *testing.T) {
+	client := http.Client{
+		// Skip TLS dial
+		Transport: &http2.Transport{
+			AllowHTTP: true,
+			DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
+				return net.Dial(network, addr)
+			},
+		},
+	}
+
+	resp, err := client.Get("http://localhost:8972")
+	if err != nil {
+		t.Log(fmt.Errorf("error making request: %v", err))
+	}
+	time.Sleep(3 * time.Second)
+	defer resp.Body.Close()
+}
+
+type serverHandler struct{}
+
+func (sh *serverHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	fmt.Println(req)
+	w.Header().Set("server", "h2test")
+	w.Write([]byte("this is a http2 test sever"))
+}
+
+func TestHttpServe(t *testing.T) {
+	server := &http.Server{
+		Addr:         ":8080",
+		Handler:      &serverHandler{},
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+	}
+	// http2.Server.ServeConn()
+	s2 := &http2.Server{
+		IdleTimeout: 1 * time.Minute,
+	}
+	http2.ConfigureServer(server, s2)
+	l, _ := net.Listen("tcp", ":8080")
+	defer l.Close()
+	fmt.Println("Start server...")
+	for {
+		rwc, err := l.Accept()
+		if err != nil {
+			fmt.Println("accept err:", err)
+			continue
+		}
+		s2.ServeConn(rwc, &http2.ServeConnOpts{BaseConfig: server})
+	}
+}
+
+func TestHttpServe2(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "Hello h2c")
+	})
+	s := &http.Server{
+		Addr:    ":8880",
+		Handler: mux,
+	}
+	http2.ConfigureServer(s, &http2.Server{})
+	err := s.ListenAndServe()
+	t.Log(err)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/mk1010/idustry/modules/redisclient"
 )
 
-var dbs = []*DB{&DB{key: "industry_identification_center"}}
+// var dbs = []*DB{{key: "industry_identification_center"}}
 
 func Init() error {
 	if err := redisclient.InitRedisClient(); err != nil {

@@ -29,6 +29,7 @@ func (h *homePage) Register(e *gin.Engine) {
 	group := e.Group("/")
 	group.Use()
 	group.GET("/device/:LogicID", Subscribe) // todo handler
+	// group.GET("/", handlers ...gin.HandlerFunc)
 }
 
 func homePageWorker() gin.HandlerFunc {
@@ -91,7 +92,6 @@ func Subscribe(c *gin.Context) {
 			// the client has disconnected.
 			break
 		}
-
 		fmt.Fprintf(w, "data: Message: %s\n\n", msg)
 		// Flush the response. This is only possible if the repsonse
 		// supports streaming.
