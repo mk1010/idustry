@@ -10,12 +10,10 @@ import (
 	"testing"
 	"time"
 
-	json "github.com/json-iterator/go"
 	"golang.org/x/net/http2"
 
 	rmq "github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/producer"
-	"github.com/mk1010/idustry/modules/industry_identification_center/model"
 )
 
 var jsonString = `
@@ -40,30 +38,6 @@ func TestModule(t *testing.T) {
 		producer.WithRetry(2),
 		producer.WithGroupName("GID_xxxxxx"),
 	)
-}
-
-func TestJson(t *testing.T) {
-	s := model.Student{}
-	fmt.Println(json.Unmarshal([]byte(jsonString), &s))
-	f, err := os.OpenFile(`C:\Users\mk\Desktop\毕业论文\开题报告PPT.pptx`, os.O_RDWR, 0666)
-	if err != nil {
-		t.Log(err)
-		return
-	}
-	bytesFile, _ := ioutil.ReadAll(f)
-	s.Name = string(bytesFile)
-	q, err := json.Marshal(&s)
-	if err != nil {
-		t.Log(err)
-		return
-	}
-	nf, err := os.OpenFile(`C:\Users\mk\Desktop\开题报告PPT.pptx`, os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		t.Log(err)
-		return
-	}
-	t.Log(nf.Write(bytesFile))
-	t.Log(string(q))
 }
 
 func TestHttpClient(t *testing.T) {
