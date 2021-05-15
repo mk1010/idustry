@@ -4,6 +4,8 @@ const Namespace = "nclink_device_data"
 
 const ID = "id"
 
+const DataID = "data_id"
+
 const AdaptorID = "adaptor_id"
 
 const DeviceID = "device_id"
@@ -22,4 +24,4 @@ const UpdateTime = "update_time"
 
 const DeleteTime = "delete_time"
 
-var AllFileds = []string{ID, AdaptorID, DeviceID, ComponentID, DataItemID, Payload, AdaptorTime, CreateTime, UpdateTime, DeleteTime}
+var AllFileds = []string{ID, DataID, AdaptorID, DeviceID, ComponentID, DataItemID, Payload, AdaptorTime, CreateTime, UpdateTime, DeleteTime}

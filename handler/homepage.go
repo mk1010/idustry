@@ -72,7 +72,7 @@ func Subscribe(c *gin.Context) {
 		UserChan: messageChan,
 	})
 
-	notify := w.(http.CloseNotifier).CloseNotify()
+	notify := c.Request.Context().Done() // w.(http.CloseNotifier).CloseNotify()
 	go func() {
 		<-notify
 		// Remove this client from the map of attached clients

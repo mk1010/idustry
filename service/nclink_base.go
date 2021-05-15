@@ -1,8 +1,6 @@
-package handler
+package service
 
 import (
-	"context"
-
 	"github.com/mk1010/industry_adaptor/nclink"
 )
 
@@ -14,9 +12,4 @@ func NewNcLinkServiceProvider() *NcLinkServiceProvider {
 	return &NcLinkServiceProvider{
 		&nclink.NCLinkServiceProviderBase{},
 	}
-}
-
-func (n *NcLinkServiceProvider) NCLinkGetMeta(ctx context.Context, req *nclink.NCLinkMetaDataReq) (*nclink.NCLinkMetaDataResp, error) {
-	resp := new(nclink.NCLinkMetaDataResp)
-	return resp, nil
 }
