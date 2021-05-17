@@ -10,7 +10,16 @@ import (
 	"github.com/mk1010/idustry/handler"
 	model "github.com/mk1010/idustry/modules"
 	"github.com/mk1010/idustry/service"
+	"github.com/mk1010/industry_adaptor/nclink/util"
 
+	_ "github.com/apache/dubbo-go/cluster/cluster_impl"
+	_ "github.com/apache/dubbo-go/cluster/loadbalance"
+	_ "github.com/apache/dubbo-go/common/proxy/proxy_factory"
+	dubboConfig "github.com/apache/dubbo-go/config"
+	_ "github.com/apache/dubbo-go/filter/filter_impl"
+	_ "github.com/apache/dubbo-go/protocol/grpc"
+	_ "github.com/apache/dubbo-go/registry/protocol"
+	_ "github.com/apache/dubbo-go/registry/zookeeper"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
@@ -26,12 +35,15 @@ func main() {
 	}
 	initGin()
 	initHandler()
-	if err := e.RunTLS(":8080", "server.crt", "server.key"); err != nil {
-		panic(fmt.Sprintf("gin running error:%v", err))
-	}
+	util.GoSafely(func() {
+		if err := e.RunTLS(":8080", "server.crt", "server.key"); err != nil {
+			panic(fmt.Sprintf("gin running error:%v", err))
+		}
+	}, nil)
 	if err := service.Init(context.Background()); err != nil {
 		panic(fmt.Sprintf("init nclink service error:%v", err))
 	}
+	dubboConfig.Load()
 }
 
 func initGin() {
