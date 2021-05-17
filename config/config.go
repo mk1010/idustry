@@ -13,6 +13,7 @@ type Config struct {
 	Env              string              `json:"env"`
 	RedisClusterName string              `json:"redis_cluster_name"`
 	RedisHosts       []string            `json:"redis_hosts"`
+	RMQNamingService []string            `json:"rmq_naming_service"`
 }
 
 type DBConfig struct {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/mk1010/idustry/config"
 	"github.com/mk1010/idustry/handler"
 	model "github.com/mk1010/idustry/modules"
+	"github.com/mk1010/idustry/service"
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
@@ -26,6 +28,9 @@ func main() {
 	initHandler()
 	if err := e.RunTLS(":8080", "server.crt", "server.key"); err != nil {
 		panic(fmt.Sprintf("gin running error:%v", err))
+	}
+	if err := service.Init(context.Background()); err != nil {
+		panic(fmt.Sprintf("init nclink service error:%v", err))
 	}
 }
 
@@ -54,8 +59,9 @@ func initConfig() error {
 	return nil
 }
 
-func initModel() error {
-	return model.Init()
+func initModel() (err error) {
+	err = model.Init()
+	return
 }
 
 func initHandler() {

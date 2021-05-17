@@ -23,5 +23,8 @@
     "redis_hosts":[
 
     ],
-    "env":"prod"
+    "env":"prod",
+    "rmq_naming_service":[
+        "42.194.213.217:9876"
+    ]
 }
