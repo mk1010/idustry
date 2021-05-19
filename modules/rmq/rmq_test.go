@@ -29,6 +29,7 @@ func TestMain(m *testing.M) {
 
 func TestRmq(t *testing.T) {
 	t.Log(Init())
+	// RmqInitTopic("nclink_command")
 	c, err := rocketmq.NewPushConsumer(
 		consumer.WithNsResolver(primitive.NewPassthroughResolver(config.ConfInstance.RMQNamingService)),
 		consumer.WithConsumerModel(consumer.Clustering),

@@ -13,10 +13,12 @@ require (
 	github.com/mk1010/industry_adaptor v0.0.5
 	github.com/pkg/errors v0.9.1
 	github.com/ugorji/go v1.2.0 // indirect
+	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 	golang.org/x/sys v0.0.0-20210402192133-700132347e07 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	gorm.io/driver/mysql v1.0.6
 	gorm.io/gorm v1.21.9
 	gorm.io/plugin/dbresolver v1.1.0

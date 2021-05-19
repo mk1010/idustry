@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/apache/dubbo-go/common/logger"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/mk1010/idustry/task"
@@ -13,9 +15,9 @@ func (n *NcLinkServiceProvider) NCLinkSubscribe(subServer nclink.NCLinkService_N
 	if err != nil {
 		return err
 	}
-	logger.Info("收到第一条msg:", msg)
+	logger.Info("NCLinkSubscribe收到第一条msg:", msg)
 	if msg.MessageKind != int32(nclink.NclinkCommandMessageKind_Subscribe) {
-		err := errors.New("第一条信息非订阅信息，请检查代码逻辑")
+		err := fmt.Errorf("第一条信息非订阅信息，请检查代码逻辑")
 		logger.Error(err)
 		return err
 	}

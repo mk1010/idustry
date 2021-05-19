@@ -14,11 +14,11 @@ import (
 	"github.com/mk1010/industry_adaptor/nclink/util"
 )
 
-var RmqClientMap map[string]rocketmq.PushConsumer
+var RmqClientMap = make(map[string]rocketmq.PushConsumer)
 
 var RmqMu sync.Mutex
 
-var RmqMsgMap map[string]*sync.Map // map[topic]map[adaptor ID]chan *nclink.NCLinkTopicMessage
+var RmqMsgMap = make(map[string]*sync.Map) // map[topic]map[adaptor ID]chan *nclink.NCLinkTopicMessage
 
 func RmqInitTopic(topic string) {
 	RmqMu.Lock()
@@ -28,12 +28,14 @@ func RmqInitTopic(topic string) {
 			consumer.WithNameServer(config.ConfInstance.RMQNamingService),
 			consumer.WithConsumerModel(consumer.BroadCasting),
 		)
-		if err == nil {
+		if err != nil {
 			return
 		}
 		RmqClientMap[topic] = c
 		RmqMsgMap[topic] = &sync.Map{}
-		NCLinkMsgDistribution(topic, c)
+		util.GoSafely(func() {
+			NCLinkMsgDistribution(topic, c)
+		}, nil)
 	}
 }
 
@@ -61,18 +63,41 @@ func NCLinkMsgDistribution(topic string, c rocketmq.PushConsumer) {
 				continue
 			}
 			if rmqMsg.AdaptorId == nil {
+				topicMsg := &nclink.NCLinkTopicMessage{
+					MessageId:   rmqMsg.MessageId,
+					MessageKind: rmqMsg.MessageKind,
+					Payload:     rmqMsg.Payload,
+				}
 				util.GoSafely(func() {
 					RmqMsgMap[topic].Range(func(key, value interface{}) bool {
 						ch, ok := value.(chan *nclink.NCLinkTopicMessage)
 						if ok {
-							ch <- &nclink.NCLinkTopicMessage{
-								MessageId:   rmqMsg.MessageId,
-								MessageKind: rmqMsg.MessageKind,
-								Payload:     rmqMsg.Payload,
-							}
+							ch <- topicMsg
 						}
 						return true
 					})
+				}, nil)
+			} else {
+				util.GoSafely(func() {
+					topicMsg := &nclink.NCLinkTopicMessage{
+						MessageId:   rmqMsg.MessageId,
+						MessageKind: rmqMsg.MessageKind,
+						Payload:     rmqMsg.Payload,
+					}
+					syncMap, ok := RmqMsgMap[topic]
+					if !ok {
+						return
+					}
+					for _, adaID := range rmqMsg.AdaptorId {
+						{
+							if val, ok := syncMap.Load(adaID); ok {
+								ch, ok := val.(chan *nclink.NCLinkTopicMessage)
+								if ok {
+									ch <- topicMsg
+								}
+							}
+						}
+					}
 				}, nil)
 			}
 		}

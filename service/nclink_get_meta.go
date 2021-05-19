@@ -22,8 +22,8 @@ func (n *NcLinkServiceProvider) NCLinkGetMeta(ctx context.Context, req *nclink.N
 	resp := new(nclink.NCLinkMetaDataResp)
 	if len(req.AdaptorId) > 0 {
 		adaptorModelMeta := make([]*model.AdaptorMeta, 0, len(req.AdaptorId))
-		err := model.DeviceInfoDB.ReadDB().Table(adaptor_meta.Namespace).Select(adaptor_meta.AllFileds).Where(fmt.Sprintf("%s in ? and %s = ?", adaptor_meta.AdaptorID,
-			adaptor_meta.DeleteTime), req.AdaptorId, constant.NotDeleteTime).Find(&adaptorModelMeta).Error
+		err := model.DeviceInfoDB.ReadDB().Table(adaptor_meta.Namespace).Select(adaptor_meta.AllFileds).Where(fmt.Sprintf("%s in ? and %s = ?",
+			adaptor_meta.AdaptorID, adaptor_meta.DeleteTime), req.AdaptorId, constant.NotDeleteTime).Find(&adaptorModelMeta).Error
 		if err != nil {
 			logger.Error("数据库查询错误 适配器元数据 err:", err)
 			return nil, err
