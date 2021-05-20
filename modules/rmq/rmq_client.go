@@ -32,7 +32,9 @@ func RmqInitTopic(topic string) {
 			return
 		}
 		RmqClientMap[topic] = c
-		RmqMsgMap[topic] = &sync.Map{}
+		if _, ok := RmqMsgMap[topic]; !ok {
+			RmqMsgMap[topic] = &sync.Map{}
+		}
 		util.GoSafely(func() {
 			NCLinkMsgDistribution(topic, c)
 		}, nil)
