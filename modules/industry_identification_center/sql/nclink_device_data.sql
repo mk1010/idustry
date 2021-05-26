@@ -5,7 +5,7 @@ create table nclink_device_data(
  device_id varchar(64) NOT NULL,
  component_id varchar(64) NOT NULL,
 data_item_id varchar(64) NOT NULL,
-payload varchar(2048) NOT NULL,
+payload text NOT NULL,
 adaptor_time bigint(20) NOT NULL,
  create_time datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
  update_time datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)  ON UPDATE CURRENT_TIMESTAMP(3),
