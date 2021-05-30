@@ -27,6 +27,7 @@ func (n *NcLinkServiceProvider) NCLinkSendData(ctx context.Context, req *nclink.
 	res := model.DeviceInfoDB.WriteDB().Table(nclink_data.Namespace).Select(nclink_data.DataID, nclink_data.AdaptorID, nclink_data.DeviceID,
 		nclink_data.ComponentID, nclink_data.DataItemID, nclink_data.Payload, nclink_data.AdaptorTime).Create(&modelData)
 	if res.Error != nil {
+		logger.Error("NCLinkSendData接口写入数据库失败 err:", res.Error)
 		return nil, res.Error
 	}
 	logger.Infof("NCLinkSendData接口写入数据%v条", res.RowsAffected)

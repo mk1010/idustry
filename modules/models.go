@@ -1,4 +1,4 @@
-package model
+package modules
 
 import (
 	IDCModel "github.com/mk1010/idustry/modules/industry_identification_center/model"
