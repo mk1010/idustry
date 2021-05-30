@@ -1,6 +1,6 @@
-#1 GO语言基本使用
-##1.1 go环境配置
-####1.1.1 golang安装
+# 1 GO语言基本使用
+## 1.1 go环境配置
+### 1.1.1 golang安装
 建议开发环境为linux。
 访问https://golang.google.cn/dl/，go语言版本需要大于1.15，建议使用最新。  
 使用wget命令下载
@@ -9,7 +9,7 @@ wget https://golang.google.cn/dl/go1.16.4.linux-amd64.tar.gz
 下载的go版本为go1.16.4 操作系统为linux，体系结构(大致等同于CPU运行的指令集)为amd64，如果intel和amd CPU体系结构一般均为amd64。
 使用tar -C /usr/local -xzf进行解压
 至此golang官方提供的开发工具已经完成安装
-###1.1.2 golang环境配置(GOPATH与GOROOT)
+### 1.1.2 golang环境配置(GOPATH与GOROOT)
 其中/usr/local为GOROOT前缀
 默认GOPATH为~/go
 上述~是指，操作系统为当前登录的用户创建的路径，其
@@ -36,7 +36,7 @@ PATH一般为，通过符号:分开的若干文件夹路径
 该命令是 声明一个环境变量 PATH 其值为 (读取当前环境变量PATH的值,在该值之后加上:/usr/local/go/bin)
 这样在终端中直接输入命令go时，终端才能找到所期望执行的可执行文件。
 当然可以根据个人喜好决定是否将\$GOPATH/bin加入\$PATH
-###1.1.3 golang环境配置(GOPROXY与GOMOD)
+### 1.1.3 golang环境配置(GOPROXY与GOMOD)
 golang官方提供了包代理网站，但是由于该网站部署在谷歌服务器上。
 由于众所周知的原因导致，大陆地区基本无法使用。
 但是默认下载所使用包时，会经由该代理，导致无法使用。
@@ -51,7 +51,7 @@ goproxy.cn是七牛云提供，可在中国大陆访问的golang代理网址
 go mod是官方自go v1.11提供的包管理工具，直至今天已经占据了约90%的go语言包管理工具份额。本项目也使用了go mod进行包管理。
 因此需要启用包管理工具
 go env -w GO111MODULE=on
-###1.1.4 git的基本使用
+### 1.1.4 git的基本使用
 本项目的git地址 https://github.com/mk1010/industry_adaptor.git
 可以cd 至\$GOPATH/src下使用
 git clone 某个项目的git地址
@@ -64,8 +64,8 @@ git commit命令将会在本地仓库修改之前的结点基础上 加上开发
 git push是将本地仓库的最新结点推送给远程仓库。
 git pull是获取远程仓库中分支的最新结点。
 结点冲突请自行bing/google git merge,在没有commit之前，git stash 也挺好用的(x)
-##1.2 go mod 
-###1.2.1 go module
+## 1.2 go mod 
+### 1.2.1 go module
 1. module就是模块。
 模块的具体使用可以参看go语言圣经的第二章第六节，包与模块就是同一个东西。
 https://books.studygolang.com/gopl-zh/ch2/ch2-06.html
@@ -105,7 +105,7 @@ dubboConfig "github.com/apache/dubbo-go/config"
     示例为直接依赖，实际上要求间接依赖也不允许循环。
     即A依赖B、B依赖C、C依赖D等等。这中间B、C、D均不允许依赖模块A。
     如果两个模块需要相互调用，可行的办法是，把相互调用部分放在同一个模块A，模块B与C调用A即可。
-###1.2.2 go mod 使用
+### 1.2.2 go mod 使用
 开发者需要为各个项目进行包管理
 在各使用go mod进行包管理的项目的根路径中，会看到go.mod与go.sum文件。
 如果没有，那么说明该项目刚刚创建或者不使用go mod进行管理
