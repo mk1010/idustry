@@ -6,7 +6,7 @@
 使用wget命令下载  
 wget https://golang.google.cn/dl/go1.16.4.linux-amd64.tar.gz  
 从示例命令中的go1.16.4.linux-amd64.tar.gz可以得出:  
-下载的go版本为go1.16.4 操作系统为linux，体系结构(大致等同于CPU运行的指令集)为amd64，如果intel和amd CPU体系结构一般均为amd64。  
+下载的go版本为go1.16.4 操作系统为linux，体系结构(大致等同于CPU运行的指令集)为amd64，例如intel和amd CPU体系结构一般均为amd64。  
 使用tar -C /usr/local -xzf进行解压  
 至此golang官方提供的开发工具已经完成安装  
 ### 1.1.2 golang环境配置(GOPATH与GOROOT)
@@ -24,7 +24,7 @@ bin为运行go get -u 命令时，会下载一些代码并编译成二进制可�
 例如运行go get -u github.com/hhatto/gocloc/cmd/gocloc 后  
 可以在\$GOPATH/bin下发现新增一个名叫gocloc二进制可执行文件，这是一个挺好用的代码行数统计工具(不要现在就运行,环境还没配完)。  
   
-由于linux处于安全考虑 在运行当前工作路径(即运行pwd命令时，显示的路径就是当前工作路径)下文件时需要加上./  
+由于linux出于安全考虑 在运行当前工作路径(即运行pwd命令时，显示的路径就是当前工作路径)下的可执行文件时需要加上./  
 在bash(linux为每一个命令行、终端均会启动一个，响应你输入的进程名)中输入非当前路径下的命令时：  
 bash会查询环境变量PATH，寻找PATH下是否有二进制可执行文件名称与所执行的命令相同，如果有就执行该二进制文件，并将命令后输入的参数，作为启动参数传给该进程。  
 查看环境变量 echo \$PATH  (有\$符号的一般是环境变量的意思)  
@@ -58,7 +58,7 @@ git clone 某个项目的git地址
 将远程仓库进行复制到本地，创建一个本地仓库。  
 git仓库分为远程仓库与本地仓库，在代码托管网站(例如github)上保存的为远程仓库。  
 在主机本地上保存的为本地仓库，本地仓库位置为该项目的根目录下有一个名称为.git的隐藏文件夹，该文件夹为git工具维护的本地仓库。请不要直接修改该文件夹。  
-一个项目仓库中存在若干分支，各分支由若干结点组成，分支直接具有相互继承关系，结点之间存在父子关系。  
+一个项目仓库中存在若干分支，各分支由若干结点组成，分支之间具有相互继承关系，结点之间存在父子关系。  
 各结点实质为项目代码状态。  
 git commit命令将会在本地仓库修改之前的结点基础上 加上开发者进行的修改后，生成一个新的本地结点。  
 git push是将本地仓库的最新结点推送给远程仓库。  
@@ -70,7 +70,7 @@ git pull是获取远程仓库中分支的最新结点。
 模块的具体使用可以参看go语言圣经的第二章第六节，包与模块就是同一个东西。  
 https://books.studygolang.com/gopl-zh/ch2/ch2-06.html  
 首先go语言中代码都会保存在文件中，文件隶属于某个模块，而模块与项目路径有关。以下使用./代指本项目的根目录。  
-如果安装之前教程，这个路径可用在终端上输入 cd \$GOPATH/src/idustry进行跳转，得到的就是本项目的根目录。  
+如果按照之前教程，这个路径可用在终端上输入 cd \$GOPATH/src/idustry进行跳转，得到的就是本项目的根目录。  
 可以看到./task下有若干go语言源代码文件(.go文件)  
 由于这些文件在同一个路径下，因此文件第一行声明其所属的go模块应当一致，示例为task。  
 2. 开发规范
@@ -128,4 +128,54 @@ go mod download会下载该项目所依赖的所有模块，及这些模块依�
 下载到$GOPATH/pkg/mod中。  
   
 go build ldflags='-s -w'  
-go build会根据该项目的main包，生成一个二进制可执行文件 ldflags为编译时参数，影响编译。具体可以查阅文档。(当然也可以不写 直接go build)go build时工作路径(pwd输出的那个)下应当是个main包  
+go build会根据该项目的main包，生成一个二进制可执行文件 ldflags为编译时参数，影响编译。具体可以查阅文档
+https://golang.org/cmd/go/  
+(当然也可以不写 直接go build)go build时工作路径(pwd输出的那个)下应当是个main包  
+# 2 启动配置及过程
+## 2.1 init函数
+init函数见  
+https://books.studygolang.com/go42/content/42_07_package.html#76-%E5%8C%85%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96  
+该书本章节简要介绍了，go语言中的包。  
+由于本书编写时间较早，因此建议给出的包管理工具并不是go mod。  
+init函数具有先后次序，对于某个包，先进行包级变量的初始化，紧接着进行init函数调用。  
+而各包的初始化也具有先后顺序。  
+其初始化顺序是，从main包开始，根据main包依赖的其他包，自上而下进行初始化后再初始化main包。  
+如果初始化时该包依赖了其他包，也是先对依赖包自上而下进行初始化。  
+每个包只会被初始化一次。  
+init函数使用规则，见参考用书。  
+在本项目中main包通过将依赖包重命名为 _  
+显示声明需要进行包init初始化，而不进行调用  
+main包依赖，本项目的bash包  
+bash包的目的就是替代启动脚本  
+之所以不使用启动脚本的原因是，考虑到项目实际运行环境的复杂多变，例如windows，非容器。  
+以及实际使用人员的计算机知识匮乏，就不要再来个启动脚本折腾了。  
+在所有包的init函数执行完毕后，开始执行main包的main函数。
+## 2.2 配置文件介绍
+### 2.2.1 日志配置文件
+在本项目bash/conf.go文件中包含了日志输出的配置文件。  
+日志的配置文件是采用uber开源的zap所依赖的日志配置文件。  
+dubbo-go对zap进行了二次开发及封装，因此本项目统一日志包为  
+github.com/apache/dubbo-go/common/logger  
+日志文件完成了保存过去7天日志文件(没有容器，只能这样了)，按每天每小时进行日志划分。
+日志配置文件各项说明开以查看zap源码  
+go.uber.org/zap下有一文件名称为config.go 其中包含结构体Config。参考源代码即可。
+### 2.2.2 dubbo配置文件
+本项目dubbo配置文件在./conf/server.yml中
+也可以参考 github.com/apache/dubbo-go/config 下provider_config.go中的源代码ProviderConfig struct进行阅读。
+1. application:
+应用名与版本号作为键值，其不允许跨版本调用。  
+如果修改后的服务及接口对以前保持兼容，那么不需要修改版本号。  
+其余配置项不是很重要(吧)。  
+2. registries
+注册中心名称zk，使用的协议zookeeper,其余的参阅dubbo-go源代码
+查看方式如下:
+"github.com/apache/dubbo-go/registry/zookeeper"
+将上述包中的zookper替换成其他可用注册协议例如etcdv3
+在该文件夹下的registry.go文件中的init函数会声明，其实例对应配置文件中的键值。  
+同时调用之前也应该import这个包进来，保证init被调用。本项目在main包的main.go中import了zookpeer。  
+如果需要切换成etcdv3等其他协议需要同时修改配置文件以及main包import的依赖包为
+"github.com/apache/dubbo-go/registry/etcdv3"  
+还有一项比较重要的是zone
+声明注册中心的机房信息，根据这个防止跨机房调用。
+当然 也可以输入账号密码 这里默认为空。  
+3. 
