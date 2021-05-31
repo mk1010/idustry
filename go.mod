@@ -10,6 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.7.1
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/json-iterator/go v1.1.11
+	github.com/lestrrat/go-file-rotatelogs v0.0.0-20180223000712-d3151e2a480f
 	github.com/mk1010/industry_adaptor v0.0.5
 	github.com/pkg/errors v0.9.1
 	github.com/ugorji/go v1.2.0 // indirect
