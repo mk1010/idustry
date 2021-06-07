@@ -19,6 +19,23 @@ import (
 
 func (n *NcLinkServiceProvider) NCLinkGetMeta(ctx context.Context, req *nclink.NCLinkMetaDataReq) (*nclink.NCLinkMetaDataResp, error) {
 	logger.Info("NCLinkGetMeta接口收到请求:", req)
+	// todo  参数检查 防止被恶意调用
+	resp, err := n.nclinkGetMetaImpl(ctx, req)
+	if err != nil {
+		resp = new(nclink.NCLinkMetaDataResp)
+		resp.BaseResp = &nclink.NCLinkBaseResp{
+			StatusCode: nclink.DBErrorCommon,
+			Detail:     err.Error(),
+		}
+		return resp, nil
+	}
+	resp.BaseResp = &nclink.NCLinkBaseResp{
+		StatusCode: nclink.StatusOk,
+	}
+	return resp, nil
+}
+
+func (n *NcLinkServiceProvider) nclinkGetMetaImpl(ctx context.Context, req *nclink.NCLinkMetaDataReq) (*nclink.NCLinkMetaDataResp, error) {
 	resp := new(nclink.NCLinkMetaDataResp)
 	if len(req.AdaptorId) > 0 {
 		adaptorModelMeta := make([]*model.AdaptorMeta, 0, len(req.AdaptorId))

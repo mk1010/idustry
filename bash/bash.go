@@ -19,7 +19,7 @@ import (
 
 const (
 	outputDir   = "./logs/"
-	logFileName = "agent.log"
+	logFileName = "agent"
 )
 
 func init() {
@@ -43,12 +43,12 @@ func init() {
 		panic(err)
 	}
 	logHook := getWriter(logFileName)
-	core := zapcore.NewTee(
+	core :=
 		zapcore.NewCore(zapcore.NewConsoleEncoder(zapLogConf.EncoderConfig), zapcore.AddSync(logHook), zap.LevelEnablerFunc(func(l zapcore.Level) bool {
 			return true
-		})),
-	)
-	zapLogger := zap.New(core, zap.AddCallerSkip(1))
+		}))
+
+	zapLogger := zap.New(core, zap.AddStacktrace(zap.WarnLevel), zap.AddCallerSkip(1)) // 由于二次封装所以需要 skip
 	logger.SetLogger(zapLogger.Sugar())
 	logConf = "" // 释放内存,可能也许
 
@@ -83,11 +83,10 @@ func getWriter(filename string) io.Writer {
 	// demo.log是指向最新日志的链接
 	// 保存7天内的日志，每1小时(整点)分割一次日志
 	hook, err := rotatelogs.New(
-		// 没有使用go风格反人类的format格式
-		outputDir+filename+".%Y%m%d",
-		rotatelogs.WithLinkName(filename),
+		outputDir+filename+".%Y%m%d-%H.log",
+		// rotatelogs.WithLinkName(filename),
 		rotatelogs.WithMaxAge(time.Hour*24*7),
-		rotatelogs.WithRotationTime(time.Hour*24),
+		rotatelogs.WithRotationTime(time.Hour),
 	)
 	if err != nil {
 		panic(err)

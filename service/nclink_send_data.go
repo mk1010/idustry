@@ -33,6 +33,5 @@ func (n *NcLinkServiceProvider) NCLinkSendData(ctx context.Context, req *nclink.
 	logger.Infof("NCLinkSendData接口写入数据%v条", res.RowsAffected)
 	return &nclink.NCLinkBaseResp{
 		StatusCode: nclink.StatusOk,
-		Detail:     "",
 	}, nil
 }

@@ -19,9 +19,9 @@
             ]
         }
     },
-    "redis_cluster_name":"",
+    "redis_cluster_name":"hellomk",
     "redis_hosts":[
-
+       "42.194.202.153:6379" 
     ],
     "env":"prod",
     "rmq_naming_service":[

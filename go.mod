@@ -3,12 +3,15 @@ module github.com/mk1010/idustry
 go 1.15
 
 require (
+	github.com/TarsCloud/TarsGo v1.1.6
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/apache/dubbo-go v1.5.6
 	github.com/apache/rocketmq-client-go/v2 v2.1.0
+	github.com/bsm/redislock v0.7.0
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.1
-	github.com/google/go-cmp v0.5.4 // indirect
+	github.com/go-redis/redis v6.15.5+incompatible
+	github.com/go-redis/redis/v8 v8.10.0
 	github.com/json-iterator/go v1.1.11
 	github.com/lestrrat/go-file-rotatelogs v0.0.0-20180223000712-d3151e2a480f
 	github.com/mk1010/industry_adaptor v0.0.5

@@ -157,10 +157,10 @@ bash包的目的就是替代启动脚本
 dubbo-go对zap进行了二次开发及封装，因此本项目统一日志包为  
 github.com/apache/dubbo-go/common/logger  
 日志文件完成了保存过去7天日志文件(没有容器，只能这样了)，按每天每小时进行日志划分。
-日志配置文件各项说明开以查看zap源码  
-go.uber.org/zap下有一文件名称为config.go 其中包含结构体Config。参考源代码即可。
+日志配置文件各项说明可以查看zap源码  
+go.uber.org/zap下存在文件名为config.go的源码文件，其中包含结构体Config。参考源代码注释即可。
 ### 2.2.2 dubbo配置文件
-本项目dubbo配置文件在./conf/server.yml中
+本项目dubbo配置文件在./conf/server.yml中  
 也可以参考 github.com/apache/dubbo-go/config 下provider_config.go中的源代码ProviderConfig struct进行阅读。
 1. application:
 应用名与版本号作为键值，其不允许跨版本调用。  
@@ -178,4 +178,90 @@ go.uber.org/zap下有一文件名称为config.go 其中包含结构体Config。�
 还有一项比较重要的是zone
 声明注册中心的机房信息，根据这个防止跨机房调用。
 当然 也可以输入账号密码 这里默认为空。  
-3. 
+3. services
+作为服务提供方所提供的服务，服务配置文件采取map[string]ServiceConfig形式提供  
+服务名为驼峰命名法，由于dubbo一开始为java语言开发，因此为了保证兼容性，首字母需要小写。  
+需要声明：该服务注册的注册中心、底层协议、接口名(对应java的包名，对于dubbo-go而言没什么用)、负载均衡方法、集群容错策略。
+声明该服务为具有的方法:
+具体可选配置见源码。  
+本项目进行了接口名、接口负载均衡方法和重试次数设置。
+注意这里的负载均衡方法与上面声明的调用时机不一样。上面是当服务进行多注册中心注册时，选取注册中心的方法。接口内是调用接口时选择的负载均衡方法。  
+4. protocols
+声明底层协议的名称 ip与port。  
+也可以不指定默认分配。  
+5. protocol_conf
+字面意思，一般为getty配置相同。不一定会用到
+### 2.2.3 基础设施配置文件
+dbs声明连接的数据库，为数组类型  
+db为数据库database为数据库名称，setting为数据库设置，该设置会在数据库连接时传入。  
+配置文件支持读写分离。
+write为写数据库配置，包含用户名、密码、ip+port及consul(未启用)  
+read为读数据库配置，为数组类型。  
+选取时，默认采取随机选取读数据库进行读取。 
+注意默认负载均衡算法将一定程度上集群性能，因此建议开启sticky(粘性)链接， 因为按照设计不会给服务端配置反向代理。  
+并且需要维护链接状态。
+负载均衡算法也可以考虑least active。  
+本项目配置文件为单机。  
+env声明gin框架的运行环境，目前没什么用。  
+rmq_naming_service、redis_cluster_name与redis_hosts是字面意思。  
+# 3 NC-Link协议
+适配器项目地址  
+https://github.com/mk1010/industry_adaptor  
+## 3.1 NC-Link服务介绍
+服务由五个接口组成，接口实现在 ./service 下。
+nclink_base.go中的NcLinkServiceProvider结构体，是服务提供的基础结构体。
+其持有的方法，即为RPC所调用的方法。接口定义在protobuf生成的go文件中声明。  
+其Reference方法返回的字符串，需要与配置文件中服务名相同。  
+dubbo通过该字符串进行配置文件查询。  
+由于proto3默认，也仅支持optional语义。  
+因此下文描述字段均为optional语义。  
+1. NclinkAuth 
+未被启用  
+2. NCLinkGetMeta 
+适配器向代理请求数据时使用   
+查询时请求包含5个slice分别为5种元数据ID  
+该接口从数据库中查询，并按指定结构对数据进行组织。  
+值得一提的是，如果某ID未查询到对应数据，采取的策略是不对baseResp中的error进行处理。
+这样的调用不会返回error。  
+3. NCLinkSendBasicData
+未被启用 
+其设计是进行byte型数据(例如图片)发送的通用接口，根据message kind进行结构解析。  
+由于byte型数据结构及组织形式还未确定，因此未被启用。
+建议在proto文件中定义枚举值
+4. NCLinkSendData
+现有逻仅仅对数据库结构和请求结构体进行了转换，转换后写入数据库。  
+5. NCLinkSubscribe
+订阅接口，为双向流式接口。
+在适配器和代理之间进行发布订阅通信模型实现。
+其实现为循环订阅，即当网络发生异常时，进行不停循环订阅。周期为3秒进行一次订阅操作。  
+适配器发送的第一条消息必须为NCLinkSub消息  
+其实现在industry_adaptor/task/topic/common.go中  
+随后通过switch选择处理函数  
+这里默认没有找到处理函数的主题订阅进行拒绝。  
+默认行为可以根据实际情况进行修改。例如:如果rmq对应的topic存在,  调用一个公共的数据转发函数。  
+在实现中 适配器的所有订阅，最终都会转换成为对rmq的订阅。通过为rmq中各topic维护的sync.Map，向负载处理适配器链接的协程写入数据。以实现协程中数据分发。  
+## 3.2 NCLink元数据
+元数据结构见  
+industry_adaptor/nclink/NC-Link.proto
+1. NCLinkAdaptor
+适配器对象，其由适配器ID、名称、适配器类型、摘要注释、运行时监控的NCLink设备ID以及由用户自定义的设备配置组成。  
+由于设备配置文件读取后决定NCLink设备启动方式、监控方式以及元数据的交互方式。适配器访问NCLink设备元数据时，应该通过进程唯一的NCLink设备哈希表进行查询。  
+如果哈希表中没有对应键值对，那么应当向代理发起查询请求，并将请求结果写入哈希表中。
+2. NCLinkDevice
+设备对象，其由设备ID、名称、设备类型、摘要注释、设备组、设备组件ID、设备组件配置、NCLink数据采集所使用的数据项组成。  
+与适配器结构类似，读取组件配置后决定NCLink组件启动方式及消息整理方法。其持有的NCLinkDataItem应当为指针持有，每个DataItem应当全局唯一。  
+其标识了该设备会产生数据的具体类型与结构。同样的组件元数据也由一个全局唯一的哈希表进行管理。
+3. NCLinkComponent
+组件对象，其由组件ID、名称、组件类型、摘要注释、NCLinkDataInfo对象组成。组件为NCLink协议中划分的最小独立存在结点。  
+其记录了该组件会采样得到的数据类型(NCLinkDataItem)以及采样周期(NCLinkSampleInfo)。所有数据均属于某一组件，组件隶属于某一设备，设备隶属于某一适配器采集。值得一提的是，这种关系并不是强关联，而是允许动态迁移。  
+**数据类型与采样周期会被多组件共享，因此禁止修改。**
+## 3.3 NCLink对象实例
+由于go禁止循环依赖，但是为了给各层级结构提供互操作的可能性。其结构见
+industry_adaptor/task/common 
+industry_adaptor/task/adaptor  
+industry_adaptor/task/device  
+industry_adaptor/task/component
+除其中common包外，各包均有common.go文件，其中声明工厂函数，根据type进行实例化。  
+实例化存在common包中，common包中定义了API以实现互操作。  
+common包中还包含了sync.Map，其具体键值类型见注释。  
+因此可以通过ID获取实例(如果实例存在并有效)。

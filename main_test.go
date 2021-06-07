@@ -105,3 +105,8 @@ func TestHttpServe2(t *testing.T) {
 	err := s.ListenAndServe()
 	t.Log(err)
 }
+
+func TestFmt(t *testing.T) {
+	s := ""
+	t.Log(fmt.Scanln(&s))
+}
