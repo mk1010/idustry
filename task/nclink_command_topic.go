@@ -101,8 +101,9 @@ func asyncSubscribeRecv(done <-chan struct{}, subServer nclink.NCLinkService_NCL
 				if err != nil {
 					logger.Errorf("适配器取消或异常退出了nclink command topic的订阅 订阅msg：%v", subMsg)
 					close(asyncChan)
+				} else {
+					asyncChan <- msg
 				}
-				asyncChan <- msg
 				return
 			}
 		}
